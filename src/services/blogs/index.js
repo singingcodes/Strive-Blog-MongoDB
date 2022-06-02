@@ -1,6 +1,7 @@
 import express from "express"
 import createError from "http-errors"
 import BlogsModel from "./model.js"
+
 import q2m from "query-to-mongo"
 
 const blogRouter = express.Router()
@@ -8,9 +9,11 @@ const blogRouter = express.Router()
 // GET /blogs
 blogRouter.get("/", async (req, res, next) => {
   try {
-    const mongoQuery = q2m(req.query)
-    const { blogs, total } = await BlogsModel.findBlogsWithUsers(mongoQuery)
-    res.send({ blogs, total })
+    const blogs = await BlogsModel.find().populate({
+      path: "authors",
+      select: "name avatar",
+    })
+    res.send(blogs)
   } catch (err) {
     next(err)
   }
@@ -176,6 +179,35 @@ blogRouter.delete("/:blogId/comments/:commentId", async (req, res, next) => {
     }
     res.status(204).send()
   } catch (error) {}
+})
+
+// POST /blogs/:blogId/likes
+// Add a like to a blog by a user
+blogRouter.post("/:blogId/likes", async (req, res, next) => {
+  try {
+    const blog = await BlogsModel.findById(req.params.blogId)
+    if (blog) {
+      const likeToAdd = {
+        ...blog.toObject(),
+        likeDate: new Date(),
+        ...req.body,
+      }
+      const updatedBlog = await BlogsModel.findByIdAndUpdate(
+        req.params.blogId,
+        { $push: { likes: likeToAdd } },
+        { new: true, runValidators: true }
+      )
+      if (updatedBlog) {
+        res.send(updatedBlog.likes)
+      } else {
+        next(createError(404, `Blog with id ${req.params.blogId} not found!`))
+      }
+    } else {
+      next(createError(404, `Blog with id ${req.params.blogId} not found!`))
+    }
+  } catch (error) {
+    next(error)
+  }
 })
 
 export default blogRouter
