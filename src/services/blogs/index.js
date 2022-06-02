@@ -120,7 +120,9 @@ blogRouter.post("/:blogId/comments", async (req, res, next) => {
 // GET /blogs/:blogId/comments/:commentId
 blogRouter.get("/:blogId/comments/:commentId", async (req, res, next) => {
   try {
-    const blog = await BlogsModel.findById(req.params.blogId)
+    const blog = await BlogsModel.findById(req.params.blogId, {
+      _id: 0,
+    })
     if (blog) {
       const comment = blog.comments.find(
         (comment) => comment._id.toString() === req.params.commentId
