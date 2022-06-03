@@ -32,7 +32,7 @@ const blogSchema = new Schema(
     },
     comments: [{ text: String, rate: Number }],
     authors: [{ type: Schema.Types.ObjectId, ref: "Author" }],
-    likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    // likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
     likes: [{ userId: String }],
   },
   {

@@ -212,4 +212,27 @@ blogRouter.post("/:blogId/likes", async (req, res, next) => {
   }
 })
 
+//remove a like from a blog by a user
+blogRouter.delete("/:blogId/likes/:likeId", async (req, res, next) => {
+  try {
+    const blog = await BlogsModel.findById(req.params.blogId)
+    if (blog) {
+      const index = blog.likes.findIndex(
+        (like) => like._id.toString() === req.params.likeId
+      )
+      if (index !== -1) {
+        blog.likes.splice(index, 1)
+        await blog.save()
+        res.status(204).send()
+      } else {
+        next(createError(404, `Like with id ${req.params.likeId} not found!`))
+      }
+    } else {
+      next(createError(404, `Blog with id ${req.params.blogId} not found!`))
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
 export default blogRouter
