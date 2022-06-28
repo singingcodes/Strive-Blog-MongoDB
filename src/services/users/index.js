@@ -1,6 +1,7 @@
 import express from "express"
 import userModel from "./model.js"
 import createError from "http-errors"
+import { basicAuth } from "../../auth/basic.js"
 
 const userRouter = express.Router()
 
@@ -15,7 +16,7 @@ userRouter.get("/", async (req, res, next) => {
 })
 
 // GET /users/:userId
-userRouter.get("/:userId", async (req, res, next) => {
+userRouter.get("/:userId", basicAuth, async (req, res, next) => {
   try {
     const user = await userModel.findById(req.params.userId)
     if (!user) {
@@ -38,7 +39,7 @@ userRouter.post("/", async (req, res, next) => {
   }
 })
 // PUT /users/:userId
-userRouter.put("/:userId", async (req, res, next) => {
+userRouter.put("/:userId", basicAuth, async (req, res, next) => {
   try {
     const user = await userModel.findByIdAndUpdate(
       req.params.userId,
@@ -54,7 +55,7 @@ userRouter.put("/:userId", async (req, res, next) => {
   }
 })
 // DELETE /users/:userId
-userRouter.delete("/:userId", async (req, res, next) => {
+userRouter.delete("/:userId", basicAuth, async (req, res, next) => {
   try {
     const user = await userModel.findByIdAndDelete(req.params.userId)
     if (!user) {

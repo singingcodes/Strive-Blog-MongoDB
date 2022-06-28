@@ -1,13 +1,13 @@
 import express from "express"
 import createError from "http-errors"
 import BlogsModel from "./model.js"
-
-import q2m from "query-to-mongo"
+import { basicAuth } from "../../auth/basic.js"
+import { adminOnlyAuth } from "../../auth/admin.js"
 
 const blogRouter = express.Router()
 
 // GET /blogs
-blogRouter.get("/", async (req, res, next) => {
+blogRouter.get("/", basicAuth, adminOnlyAuth, async (req, res, next) => {
   try {
     const blogs = await BlogsModel.find().populate({
       path: "authors",
@@ -230,6 +230,15 @@ blogRouter.delete("/:blogId/likes/:likeId", async (req, res, next) => {
     } else {
       next(createError(404, `Blog with id ${req.params.blogId} not found!`))
     }
+  } catch (error) {
+    next(error)
+  }
+})
+
+//Create a /me/stories route retrieving all the blog posts published by the authenticated user
+blogRouter.get("/me/stories", basicAuth, async (req, res, next) => {
+  try {
+    res.send(req.user)
   } catch (error) {
     next(error)
   }

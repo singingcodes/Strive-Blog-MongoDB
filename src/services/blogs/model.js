@@ -31,6 +31,8 @@ const blogSchema = new Schema(
       required: true,
     },
     comments: [{ text: String, rate: Number }],
+    //should have more than one author
+
     authors: [{ type: Schema.Types.ObjectId, ref: "Author" }],
     // likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
     likes: [{ userId: String }],
