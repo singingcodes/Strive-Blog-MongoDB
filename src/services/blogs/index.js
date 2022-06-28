@@ -238,7 +238,8 @@ blogRouter.delete("/:blogId/likes/:likeId", async (req, res, next) => {
 //Create a /me/stories route retrieving all the blog posts published by the authenticated user
 blogRouter.get("/me/stories", basicAuth, async (req, res, next) => {
   try {
-    res.send(req.user)
+    const blogs = await BlogsModel.find({ author: req.user._id.toString() })
+    res.send(blogs)
   } catch (error) {
     next(error)
   }
