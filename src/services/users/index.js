@@ -87,12 +87,14 @@ userRouter.post("/login", async (req, res, next) => {
     const user = await userModel.checkCredentials(username, password)
     if (!user) {
       next(createError(401, "Invalid credentials"))
-    }
-    const accessToken = await generateAccessToken({
+    } else {
+         const accessToken = await generateAccessToken({
       _id: user._id,
       role: user.role,
     })
     res.send({ accessToken })
+    }
+ 
   } catch (err) {
     next(err)
   }
