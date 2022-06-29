@@ -12,8 +12,8 @@ export const basicAuth = async (req, res, next) => {
     )
   } else {
     const auth = req.headers.authorization.split(" ")[1]
-    const [email, password] = atob(auth).split(":")
-    const user = await UserModel.checkCredentials(email, password)
+    const [username, password] = atob(auth).split(":")
+    const user = await UserModel.checkCredentials(username, password)
     if (user) {
       req.user = user
       next()

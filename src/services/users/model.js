@@ -4,22 +4,22 @@ const { Schema, model } = mongoose
 
 const userSchema = new Schema(
   {
-    firstName: {
-      type: String,
-      required: true,
-    },
-    lastName: {
-      type: String,
-      required: true,
-    },
-    email: {
-      type: String,
-      required: true,
-    },
-    age: {
-      type: Number,
-      required: true,
-    },
+    // firstName: {
+    //   type: String,
+    //   required: true,
+    // },
+    // lastName: {
+    //   type: String,
+    //   required: true,
+    // },
+    // email: {
+    //   type: String,
+    //   required: true,
+    // },
+    // age: {
+    //   type: Number,
+    //   required: true,
+    // },
     password: {
       type: String,
       required: true,
@@ -29,10 +29,14 @@ const userSchema = new Schema(
       enum: ["user", "admin"],
       default: "user",
     },
-    avatar: {
+    username: {
       type: String,
       required: true,
     },
+    // avatar: {
+    //   type: String,
+    //   required: true,
+    // },
   },
   {
     timestamps: true,
@@ -51,8 +55,8 @@ userSchema.methods.toJSON = function () {
   delete user.__v
   return user
 }
-userSchema.static("checkCredentials", async function (email, password) {
-  const user = await this.findOne({ email })
+userSchema.static("checkCredentials", async function (username, password) {
+  const user = await this.findOne({ username })
   if (user) {
     const isValid = await bcrypt.compare(password, user.password)
     if (isValid) {
