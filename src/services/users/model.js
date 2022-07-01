@@ -4,39 +4,20 @@ const { Schema, model } = mongoose
 
 const userSchema = new Schema(
   {
-    // firstName: {
-    //   type: String,
-    //   required: true,
-    // },
-    // lastName: {
-    //   type: String,
-    //   required: true,
-    // },
-    // email: {
-    //   type: String,
-    //   required: true,
-    // },
-    // age: {
-    //   type: Number,
-    //   required: true,
-    // },
     password: {
       type: String,
-      required: true,
     },
     role: {
       type: String,
       enum: ["user", "admin"],
       default: "user",
     },
-    username: {
+    email: {
       type: String,
       required: true,
     },
-    // avatar: {
-    //   type: String,
-    //   required: true,
-    // },
+    refreshToken: { type: String },
+    googleID: { type: String },
   },
   {
     timestamps: true,
@@ -55,8 +36,8 @@ userSchema.methods.toJSON = function () {
   delete user.__v
   return user
 }
-userSchema.static("checkCredentials", async function (username, password) {
-  const user = await this.findOne({ username })
+userSchema.static("checkCredentials", async function (email, password) {
+  const user = await this.findOne({ email })
   if (user) {
     const isValid = await bcrypt.compare(password, user.password)
     if (isValid) {

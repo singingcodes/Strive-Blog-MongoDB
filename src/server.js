@@ -1,6 +1,7 @@
 import express from "express"
 import cors from "cors"
 import mongoose from "mongoose"
+import passport from "passport"
 import listEndpoints from "express-list-endpoints"
 import blogRouter from "./services/blogs/index.js"
 import authorRouter from "./services/authors/index.js"
@@ -10,13 +11,16 @@ import {
   notFoundHandler,
   genericErrorHandler,
 } from "./errorHandlers.js"
+import googleStrategy from "./auth/googleOAuth.js"
 
 const server = express()
 const port = process.env.PORT || 3001
+passport.use("google", googleStrategy)
 
 // Middleware
 server.use(cors())
 server.use(express.json())
+server.use(passport.initialize())
 
 // Routes
 server.use("/blogs", blogRouter)

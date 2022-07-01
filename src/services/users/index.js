@@ -1,11 +1,35 @@
 import express from "express"
 import userModel from "./model.js"
+import passport from "passport"
 import createError from "http-errors"
 import { basicAuth } from "../../auth/basic.js"
 import { generateAccessToken } from "../../auth/tools.js"
 import { JWTMiddleware } from "../../auth/token.js"
 
 const userRouter = express.Router()
+
+//redirect to google login
+userRouter.get(
+  "/googleLogin",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+)
+//redirect to google callback
+userRouter.get(
+  "/googleRedirect",
+  passport.authenticate("google", {
+    session: false,
+  }),
+  (req, res, next) => {
+    try {
+      const { token } = req.user // passportNext is adding accessToken and refreshToken to req.user
+      console.log("TOKEN", token)
+      // res.send({ accessToken, refreshToken })
+      res.redirect(`${process.env.FE_URL}/home/${token}`)
+    } catch (error) {
+      next(createError(401, "Invalid token"))
+    }
+  }
+)
 
 // GET /users
 userRouter.get("/", async (req, res, next) => {
@@ -83,21 +107,29 @@ userRouter.post("/register", async (req, res, next) => {
 //login a user with username and password
 userRouter.post("/login", async (req, res, next) => {
   try {
-    const { username, password } = req.body
-    const user = await userModel.checkCredentials(username, password)
+    const { email, password } = req.body
+    const user = await userModel.checkCredentials(email, password)
     if (!user) {
       next(createError(401, "Invalid credentials"))
     } else {
-         const accessToken = await generateAccessToken({
-      _id: user._id,
-      role: user.role,
-    })
-    res.send({ accessToken })
+      const accessToken = await generateAccessToken({
+        _id: user._id,
+        role: user.role,
+      })
+      res.send({ accessToken })
     }
- 
   } catch (err) {
     next(err)
   }
 })
-
+// userRouter.post("/refreshToken", async (req, res, next) => {
+//   try {
+//     const { currentRefreshToken } = req.body
+//     const { accessToken, refreshToken } =
+//       await verifyRefreshTokenAndGenerateNewTokens(currentRefreshToken)
+//     res.send({ accessToken, refreshToken })
+//   } catch (err) {
+//     next(err)
+//   }
+// })
 export default userRouter
